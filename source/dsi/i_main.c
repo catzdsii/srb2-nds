@@ -1,0 +1,75 @@
+// SONIC ROBO BLAST 2 - DSi Port
+//-----------------------------------------------------------------------------
+// Copyright (C) 1993-1996 by id Software, Inc.
+// Copyright (C) 1998-2000 by DooM Legacy Team.
+// Copyright (C) 1999-2016 by Sonic Team Junior.
+// DSi Port by catzdsii - Based on the 3DS port
+//
+// This program is free software distributed under the
+// terms of the GNU General Public License, version 2.
+// See the 'LICENSE' file for more details.
+//-----------------------------------------------------------------------------
+/// \file  i_main.c
+/// \brief SRB2 main program for DSi
+
+#include <nds.h>
+#include <stdio.h>
+#include <fat.h>
+
+#include "../doomdef.h"
+#include "../d_main.h"
+#include "../m_argv.h"
+#include "../i_system.h"
+
+int main(int argc, char **argv)
+{
+	// Initialize the DS hardware
+	videoSetMode(MODE_0_2D);
+	videoSetModeSub(MODE_0_2D);
+	
+	vramSetBankA(VRAM_A_MAIN_BG);
+	vramSetBankB(VRAM_B_MAIN_BG);
+	vramSetBankC(VRAM_C_SUB_BG);
+	vramSetBankD(VRAM_D_MAIN_BG);
+	vramSetBankE(VRAM_E_MAIN_SPRITE);
+	vramSetBankF(VRAM_F_LCD);
+	vramSetBankG(VRAM_G_MAIN_BG);
+	vramSetBankH(VRAM_H_SUB_BG);
+	vramSetBankI(VRAM_I_SUB_SPRITE);
+	
+	// Initialize FAT filesystem for SD card access
+	if (!fatInitDefault())
+	{
+		consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 1, 0, false, true);
+		iprintf("Error: Could not initialize FAT!\n");
+		iprintf("Make sure your SD card\n");
+		iprintf("is inserted correctly.\n");
+		while(1) swiWaitForVBlank();
+	}
+	
+	// Initialize console for debugging
+	consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 1, 0, false, true);
+	iprintf("SRB2-Lite DSi\n");
+	iprintf("Port by catzdsii\n");
+	iprintf("Based on 3DS port\n");
+	iprintf("Initializing...\n");
+	
+	myargc = argc;
+	myargv = argv;
+
+	CONS_Printf("I_StartupSystem...");
+	I_StartupSystem();
+
+	// startup SRB2
+	CONS_Printf("Setting up SRB2...\n");
+	D_SRB2Main();
+	
+	CONS_Printf("Entering main game loop...\n");
+
+	// never return
+	D_SRB2Loop();
+
+	// return to OS (should never reach here)
+	return 0;
+}
+

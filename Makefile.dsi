@@ -1,0 +1,262 @@
+#---------------------------------------------------------------------------------
+.SUFFIXES:
+#---------------------------------------------------------------------------------
+
+ifeq ($(strip $(DEVKITARM)),)
+$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
+endif
+
+TOPDIR ?= $(CURDIR)
+include $(DEVKITARM)/ds_rules
+
+VERS_STRING := $(shell git describe --tags --match v[0-9]* --abbrev=8 | sed 's/-[0-9]*-g/-/i' 2>/dev/null || echo "DSi-v1.0")
+
+#---------------------------------------------------------------------------------
+# SRB2-Lite DSi Port
+# Port by catzdsii - Based on the 3DS port
+#---------------------------------------------------------------------------------
+# TARGET is the name of the output
+# BUILD is the directory where object files & intermediate files will be placed
+# SOURCES is a list of directories containing source code
+# DATA is a list of directories containing data files
+# INCLUDES is a list of directories containing header files
+# GRAPHICS is a list of directories containing graphics files
+# GFXBUILD is the directory where converted graphics files will be placed
+#---------------------------------------------------------------------------------
+TARGET		:=	srb2_dsi
+BUILD		:=	build_dsi
+SOURCES := source \
+			source/dsi \
+			source/hardware \
+			source/blua
+
+DATA		:=	data
+INCLUDES	:=	source
+GRAPHICS	:=	gfx
+GFXBUILD	:=	$(BUILD)
+
+#---------------------------------------------------------------------------------
+# options for code generation
+#---------------------------------------------------------------------------------
+ARCH	:=	-march=armv5te -mtune=arm946e-s
+
+CFLAGS	:=	-g -Wall -O2 -mthumb \
+			-fomit-frame-pointer -ffast-math \
+			-Wno-error -Wno-format -Wno-sizeof-pointer-memaccess \
+			-Wno-incompatible-pointer-types \
+			$(ARCH)
+DEFINES	:=	-D__NDS__ -D_NDS -DARM9 -DNONET -DNO_IPV6 -DNOHS -DNOMD5 \
+			-DHAVE_BLUA -DNOPOSTPROCESSING -DNOSPLITSCREEN \
+			-DDSI_MODE -DRAYCAST_RENDER -DMAX_POLYGONS=2000
+
+CFLAGS	+=	$(INCLUDE) $(DEFINES)
+
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
+
+ASFLAGS	:=	-g $(ARCH)
+LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
+
+LIBS	:= -lmm9 -lnds9 -lm
+
+#---------------------------------------------------------------------------------
+# list of directories containing libraries
+#---------------------------------------------------------------------------------
+LIBDIRS	:= $(LIBNDS) $(DEVKITPRO)/libmaxmod
+
+#---------------------------------------------------------------------------------
+# no real need to edit anything past this point unless you need to add additional
+# rules for different file extensions
+#---------------------------------------------------------------------------------
+ifneq ($(BUILD),$(notdir $(CURDIR)))
+#---------------------------------------------------------------------------------
+
+export OUTPUT	:=	$(CURDIR)/$(TARGET)
+export TOPDIR	:=	$(CURDIR)
+
+export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
+export DEPSDIR	:=	$(CURDIR)/$(BUILD)
+
+CFILES		:=	i_main.o \
+				comptime.o \
+				string.o   \
+				d_main.o   \
+				d_clisrv.o \
+				d_net.o    \
+				d_netfil.o \
+				d_netcmd.o \
+				dehacked.o \
+				z_zone.o   \
+				f_finale.o \
+				f_wipe.o   \
+				g_game.o   \
+				g_input.o  \
+				am_map.o   \
+				command.o  \
+				console.o  \
+				hu_stuff.o \
+				y_inter.o  \
+				st_stuff.o \
+				m_aatree.o \
+				m_anigif.o \
+				m_argv.o   \
+				m_bbox.o   \
+				m_cheat.o  \
+				m_cond.o   \
+				m_fixed.o  \
+				m_menu.o   \
+				m_misc.o   \
+				m_random.o \
+				m_queue.o  \
+				info.o     \
+				p_ceilng.o \
+				p_enemy.o  \
+				p_floor.o  \
+				p_inter.o  \
+				p_lights.o \
+				p_map.o    \
+				p_maputl.o \
+				p_mobj.o   \
+				p_polyobj.o\
+				p_saveg.o  \
+				p_setup.o  \
+				p_sight.o  \
+				p_spec.o   \
+				p_telept.o \
+				p_tick.o   \
+				p_user.o   \
+				p_slopes.o \
+				tables.o   \
+				r_bsp.o    \
+				r_data.o   \
+				r_draw.o   \
+				r_main.o   \
+				r_plane.o  \
+				r_segs.o   \
+				r_sky.o    \
+				r_splats.o \
+				r_things.o \
+				r_raycast.o \
+				dsi_sprite.o \
+				dsi_texture.o \
+				dsi_utils.o \
+				dsi_collision.o \
+				screen.o   \
+				v_video.o  \
+				s_sound.o  \
+				sounds.o   \
+				w_wad.o    \
+				filesrch.o \
+				mserv.o    \
+				i_tcp.o    \
+				lzf.o	     \
+				b_bot.o \
+				i_cdmus.o    \
+				i_net.o      \
+				i_system.o   \
+				i_sound.o    \
+				i_video.o    \
+				dsi_utils.o    \
+				dsi_sprite.o    \
+				dsi_texture.o    \
+				lapi.o    \
+				lauxlib.o    \
+				lbaselib.o    \
+				lcode.o    \
+				ldebug.o    \
+				ldo.o    \
+				ldump.o    \
+				lfunc.o    \
+				lgc.o    \
+				linit.o    \
+				llex.o    \
+				lmem.o    \
+				lobject.o    \
+				lopcodes.o    \
+				lparser.o    \
+				lstate.o    \
+				lstring.o    \
+				lstrlib.o    \
+				ltable.o    \
+				ltablib.o    \
+				ltm.o    \
+				lundump.o    \
+				lvm.o    \
+				lzio.o    \
+				lua_baselib.o    \
+				lua_consolelib.o    \
+				lua_hooklib.o    \
+				lua_hudlib.o    \
+				lua_infolib.o    \
+				lua_maplib.o    \
+				lua_mathlib.o    \
+				lua_mobjlib.o    \
+				lua_playerlib.o    \
+				lua_script.o    \
+				lua_skinlib.o    \
+				lua_thinkerlib.o
+
+CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
+SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+
+#---------------------------------------------------------------------------------
+# use CXX for linking C++ projects, CC for standard C
+#---------------------------------------------------------------------------------
+ifeq ($(strip $(CPPFILES)),)
+#---------------------------------------------------------------------------------
+	export LD	:=	$(CC)
+#---------------------------------------------------------------------------------
+else
+#---------------------------------------------------------------------------------
+	export LD	:=	$(CXX)
+#---------------------------------------------------------------------------------
+endif
+#---------------------------------------------------------------------------------
+
+export OFILES_SOURCES 	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
+export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES))
+export OFILES := $(OFILES_BIN) $(OFILES_SOURCES)
+
+export HFILES	:=	$(addsuffix .h,$(subst .,_,$(BINFILES)))
+
+export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
+			$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+			-I$(CURDIR)/$(BUILD)
+
+export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+
+.PHONY: all clean
+
+#---------------------------------------------------------------------------------
+all:
+	@mkdir -p $(BUILD) $(GFXBUILD)
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile.dsi
+
+#---------------------------------------------------------------------------------
+clean:
+	@echo clean ...
+	@rm -fr $(BUILD) $(TARGET).nds $(TARGET).arm9 $(TARGET).elf
+
+#---------------------------------------------------------------------------------
+else
+
+#---------------------------------------------------------------------------------
+# main targets
+#---------------------------------------------------------------------------------
+$(OUTPUT).nds	:	$(OUTPUT).arm9
+$(OUTPUT).arm9	:	$(OUTPUT).elf
+$(OUTPUT).elf	:	$(OFILES)
+
+#---------------------------------------------------------------------------------
+%.bin.o	%_bin.h :	%.bin
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	@$(bin2o)
+
+#---------------------------------------------------------------------------------
+-include $(DEPSDIR)/*.d
+
+#---------------------------------------------------------------------------------------
+endif
+#---------------------------------------------------------------------------------------
+
