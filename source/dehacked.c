@@ -1013,9 +1013,9 @@ static void readlevelheader(MYFILE *f, INT32 num)
 	INT32 i;
 	INT32 loopcount = 0;
 
-	if (num == 12)
+	if (num == 12 || num == 53)
 	{
-		CONS_Printf("SKIPPING LEVEL 12 HEADER TO PREVENT HANG\n");
+		CONS_Printf("SKIPPING LEVEL %d HEADER TO PREVENT HANG\n", num);
 		// Just consume the block to be safe
 		do
 		{
@@ -1038,6 +1038,12 @@ static void readlevelheader(MYFILE *f, INT32 num)
 	P_AllocMapHeader((INT16)(num-1));
 	CONS_Printf("RMC: Map header allocated\n");
 
+	if (!f || !f->curpos)
+	{
+		CONS_Printf("RMC: Invalid file pointer for level %d\n", num);
+		return;
+	}
+
 	do
 	{
 		if (++loopcount > 10000)
@@ -1046,9 +1052,10 @@ static void readlevelheader(MYFILE *f, INT32 num)
 			break;
 		}
 
+		//CONS_Printf("RMC: Reading line %d\n", loopcount);
 		if (myfgets(s, 1024, f))
 		{
-			//CONS_Printf("RMC: %s", s);
+			//CONS_Printf("RMC: Got line: %s", s);
 			if (s[0] == '\n' || s[0] == '\r')
 			{
 				//CONS_Printf("RMC: EOL detected, breaking\n");
