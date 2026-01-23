@@ -98,92 +98,12 @@ You must extract SRB2 v2.1.22 assets and place them in the `data/` folder:
 
 ## Code Structure
 
-```
-source/dsi/
-├── i_main.c          # Main entry point
-├── i_system.c        # System interface (memory, timers, etc.)
-├── i_video.c         # Video interface (initialization, buffers)
-├── i_sound.c         # Audio interface (maxmod)
-├── i_net.c           # Network interface (not supported)
-├── i_cdmus.c         # CD music interface (not supported)
-├── r_raycast.c/h     # Raycasting engine (Doom-style)
-├── dsi_sprite.c/h    # 2D sprite management (billboards)
-├── dsi_texture.c/h   # Palettized texture management
-├── dsi_collision.c/h # AABB collision detection
-└── dsi_utils.c/h     # Utility functions
-```
-
-## Optimizations
-
-### Memory
-
-- Textures limited to 128x128 pixels
-- Texture cache limited to 32 textures
-- Sprites limited to 32 simultaneous
-- Dynamic memory allocation with strict management
-
-### Performance
-
-- Optimized raycasting with DDA (Digital Differential Analyzer)
-- Limit of 2000 polygons per scene
-- No post-processing
-- No split-screen
-- No network
-
-### Graphics
-
-- Fixed resolution 256x192
-- 16-bit color (RGB555)
-- 8-bit palettized textures
-- 2D sprites for characters
-
-## Known Limitations
-
-- No network support (no netplay)
-- No split-screen
-- No MIDI (uses .it or .wav only)
-- Only Greenflower Zone Act 1
-- No water reflections
-- Static sky (no scrolling)
-- Maximum 5-10 active enemies
-
-## Troubleshooting
-
-### Error: "Impossible d'initialiser FAT!"
-
-- Check that your SD card is properly inserted
-- Make sure Twilight Menu++ is installed
-- Verify the SD card is formatted as FAT32
-
-### Game is too slow
-
-- Reduce the number of active enemies
-- Simplify textures (reduce resolution)
-- Disable some visual effects
-
-### Sound doesn't work
-
-- Verify that maxmod-nds is installed
-- Make sure audio files are in the correct format (.it or .wav)
-
-## Credits
-
-- **Sonic Team Junior** for original SRB2
-- **devkitPro team** for development tools
-- **DS/DSi homebrew community** for support and resources
+- `source/dsi/`: DSi-specific code
+- `source/`: Core game logic
+- `gfx/`: Graphics assets
 
 ## DSi Port Credits
 
-This DSi port was created by **catzdsii** and is based on the 3DS port. It uses a simplified raycasting engine optimized for DSi hardware constraints.
-
-### Author
+This DSi port was created by **catzdsii** and is based on the 3DS port.
 - **catzdsii** - DSi / DSi XL port with optimized raycasting engine
-
-### Based on
-- SRB2 3DS port by derrek and STJr team
-- Original SRB2 by Sonic Team Junior
-
-## License
-
-This project is licensed under GPL v2, same as original SRB2.
-
+- **derrekr** - Original 3DS port foundation
