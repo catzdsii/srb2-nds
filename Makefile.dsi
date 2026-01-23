@@ -30,7 +30,7 @@ SOURCES := source \
 			source/hardware \
 			source/blua
 
-DATA		:=	data
+DATA		:=	
 INCLUDES	:=	source
 GRAPHICS	:=	gfx
 GFXBUILD	:=	$(BUILD)
@@ -54,9 +54,9 @@ CFLAGS	+=	$(INCLUDE) $(DEFINES)
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
 
 ASFLAGS	:=	-g $(ARCH)
-LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
+LDFLAGS	=	-g $(ARCH) -specs=ds_arm9.specs -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lmm9 -lnds9 -lm
+LIBS	:= -lmm9 -lnds9 -lm -lfat
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries
@@ -136,9 +136,6 @@ CFILES		:=	i_main.o \
 				r_splats.o \
 				r_things.o \
 				r_raycast.o \
-				dsi_sprite.o \
-				dsi_texture.o \
-				dsi_utils.o \
 				dsi_collision.o \
 				screen.o   \
 				v_video.o  \
@@ -155,6 +152,7 @@ CFILES		:=	i_main.o \
 				i_system.o   \
 				i_sound.o    \
 				i_video.o    \
+				dsi_heap.o   \
 				dsi_utils.o    \
 				dsi_sprite.o    \
 				dsi_texture.o    \

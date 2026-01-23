@@ -477,7 +477,7 @@ extern const char *compdate, *comptime, *comprevision, *compbranch;
 #define SHUFFLE // This has nothing to do with sorting, why was it disabled?
 #endif
 
-#if !defined (_PSP)
+#if !defined (_PSP) && !defined (_NDS)
 ///	Allow the use of the SOC RESETINFO command.
 ///	\note	Builds that are tight on memory should disable this.
 ///	    	This stops the game from storing backups of the states, sprites, and mobjinfo tables.

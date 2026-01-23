@@ -40,15 +40,50 @@ int main(int argc, char **argv)
 	// Initialize FAT filesystem for SD card access
 	if (!fatInitDefault())
 	{
-		consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 1, 0, false, true);
+		videoSetModeSub(MODE_0_2D | DISPLAY_BG0_ACTIVE);
+		vramSetBankC(VRAM_C_SUB_BG);
+		consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 		iprintf("Error: Could not initialize FAT!\n");
 		iprintf("Make sure your SD card\n");
 		iprintf("is inserted correctly.\n");
 		while(1) swiWaitForVBlank();
 	}
 	
-	// Initialize console for debugging
-	consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 1, 0, false, true);
+	// Initialize Top Screen (Main)
+	videoSetMode(MODE_0_2D | DISPLAY_BG0_ACTIVE);
+	// vramSetBankA(VRAM_A_MAIN_BG); // Already set above
+	PrintConsole topScreen;
+	consoleInit(&topScreen, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, true, true);
+	
+	// Initialize Bottom Screen (Sub)
+	videoSetModeSub(MODE_0_2D | DISPLAY_BG0_ACTIVE);
+	// vramSetBankC(VRAM_C_SUB_BG); // Already set above
+	PrintConsole bottomScreen;
+	consoleInit(&bottomScreen, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
+	
+	// Select Top Screen for ASCII Art
+	consoleSelect(&topScreen);
+	iprintf("\x1b[2J"); // Clear screen
+	
+	// Center text vertically
+	iprintf("\n\n\n\n\n\n\n\n\n");
+	
+	// Display "catzdsii" in ASCII art (Big Text)
+	iprintf("  ___ __ _ _ _ ___ ___  ___ _ _ \n");
+	iprintf(" / __/ _` | '_|_  / _ \\/ __| | |\n");
+	iprintf("| (_| (_| | |  / / (_) \\__ \\ | |\n");
+	iprintf(" \\___\\__,_|_| /___\\___/|___/_|_|\n");
+	
+	// Wait for 3 seconds so the user can see it
+	int wait_i;
+	for(wait_i = 0; wait_i < 180; wait_i++) swiWaitForVBlank();
+	
+	// Clear Top Screen
+	iprintf("\x1b[2J");
+	
+	// Select Bottom Screen for Logs
+	consoleSelect(&bottomScreen);
+	
 	iprintf("SRB2-Lite DSi\n");
 	iprintf("Port by catzdsii\n");
 	iprintf("Based on 3DS port\n");
@@ -59,6 +94,14 @@ int main(int argc, char **argv)
 
 	CONS_Printf("I_StartupSystem...");
 	I_StartupSystem();
+
+	// Inject WAD paths for DSi
+	static char *dsi_argv[] = {
+	"srb2_dsi",
+	NULL
+};
+	myargc = 1;
+	myargv = dsi_argv;
 
 	// startup SRB2
 	CONS_Printf("Setting up SRB2...\n");

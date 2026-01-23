@@ -216,9 +216,12 @@ static inline void W_LoadDehackedLumps(UINT16 wadnum)
 				DEH_LoadDehackedLumpPwad(wadnum, lump);
 			}
 	}
+	
+	CONS_Printf("Finished scanning lumps for %s\n", wadfiles[wadnum]->filename);
 
 #ifdef SCANTHINGS
 	// Scan maps for emblems 'n shit
+	CONS_Printf("Scanning maps for %s...\n", wadfiles[wadnum]->filename);
 	{
 		lumpinfo_t *lump_p = wadfiles[wadnum]->lumpinfo;
 		for (lump = 0; lump < wadfiles[wadnum]->numlumps; lump++, lump_p++)
@@ -227,10 +230,12 @@ static inline void W_LoadDehackedLumps(UINT16 wadnum)
 			if (name[0] == 'M' && name[1] == 'A' && name[2] == 'P' && name[5]=='\0')
 			{
 				INT16 mapnum = (INT16)M_MapNumber(name[3], name[4]);
+				//CONS_Printf("Scanning map %s\n", name);
 				P_ScanThings(mapnum, wadnum, lump + ML_THINGS);
 			}
 		}
 	}
+	CONS_Printf("Finished scanning maps for %s\n", wadfiles[wadnum]->filename);
 #endif
 }
 
@@ -302,6 +307,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	(void)dummycheck;
 
 	//CONS_Debug(DBG_SETUP, "Loading %s\n", filename);
+	CONS_Printf("Loading WAD file: %s...\n", filename);
 	//
 	// check if limit of active wadfiles
 	//
@@ -450,8 +456,10 @@ UINT16 W_LoadWadFile(const char *filename)
 	// Let's not add a wad file if the MD5 matches
 	// an MD5 of an already added WAD file!
 	//
-	W_MakeFileMD5(filename, md5sum);
+	CONS_Printf("Skipping MD5 calc for %s\n", filename);
+	//W_MakeFileMD5(filename, md5sum);
 
+	/*
 	for (i = 0; i < numwadfiles; i++)
 	{
 		if (!memcmp(wadfiles[i]->md5sum, md5sum, 16))
@@ -460,6 +468,7 @@ UINT16 W_LoadWadFile(const char *filename)
 			return INT16_MAX;
 		}
 	}
+	*/
 #endif
 
 	//

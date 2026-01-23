@@ -22,31 +22,33 @@
 #include "../z_zone.h"
 
 // DSi sound system using maxmod (supports .it and .wav)
-mm_sound_effect snd_effect;
+//mm_sound_effect snd_effect;
+
+static int current_mod_id = -1;
 
 void I_StartupSound(void)
 {
 	// Initialize maxmod
-	// Note: soundbank_bin needs to be created separately
-	// mmInitDefaultMem((mm_addr)soundbank_bin);
+	// We try to load a soundbank from the SD card
+	mmInitDefault("fat:/srb2/soundbank.bin");
 	
 	// Set sound volume
 	mmSetModuleVolume(512);
 	mmSetEffectsVolume(512);
 	
-	CONS_Printf("DSi sound system initialized (maxmod)\n");
+	CONS_Printf("DSi sound system initialized (MaxMod)\n");
 }
 
 void I_ShutdownSound(void)
 {
-	mmStop();
-	mmUnload(MOD_MUSIC);
+	//mmStop();
+	//mmUnload(MOD_MUSIC);
 }
 
 void I_UpdateSound(void)
 {
 	// Update handled by maxmod
-	mmFrame();
+	//mmFrame();
 }
 
 void I_SubmitSound(void)
@@ -54,17 +56,19 @@ void I_SubmitSound(void)
 	// Not needed for maxmod
 }
 
-void I_SetMusicVolume(int volume)
+void I_SetMusicVolume(UINT8 volume)
 {
-	mmSetModuleVolume(volume);
+	//mmSetModuleVolume(volume);
+	(void)volume;
 }
 
-void I_SetSfxVolume(int volume)
+void I_SetSfxVolume(UINT8 volume)
 {
-	mmSetEffectsVolume(volume);
+	//mmSetEffectsVolume(volume);
+	(void)volume;
 }
 
-int I_StartSound(int id, int vol, int sep, int pitch, int priority, const mobj_t *origin)
+INT32 I_StartSound(sfxenum_t id, UINT8 vol, UINT8 sep, UINT8 pitch, UINT8 priority, INT32 channel)
 {
 	// Start sound effect
 	// For now, simplified implementation
@@ -73,26 +77,25 @@ int I_StartSound(int id, int vol, int sep, int pitch, int priority, const mobj_t
 	(void)sep;
 	(void)pitch;
 	(void)priority;
-	(void)origin;
+	(void)channel;
 	
 	return 0;
 }
 
-void I_StopSound(int handle, int id)
+void I_StopSound(INT32 handle)
 {
 	// Stop sound effect
 	(void)handle;
-	(void)id;
 }
 
-boolean I_SoundIsPlaying(int handle)
+boolean I_SoundIsPlaying(INT32 handle)
 {
 	// Check if sound is playing
 	(void)handle;
 	return false;
 }
 
-void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
+void I_UpdateSoundParams(INT32 handle, UINT8 vol, UINT8 sep, UINT8 pitch)
 {
 	// Update sound parameters
 	(void)handle;
@@ -101,44 +104,84 @@ void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
 	(void)pitch;
 }
 
-void I_StartMusic(const char *musicname, boolean loop)
+// Music functions
+boolean I_PlaySong(boolean looping)
 {
-	// Start music (using .it or .wav format)
-	// For now, simplified
-	(void)musicname;
-	(void)loop;
+	if (current_mod_id == -1)
+		return false;
+
+	mmStart(current_mod_id, looping ? MM_PLAY_LOOP : MM_PLAY_ONCE);
+	return true;
 }
 
-void I_StopMusic(void)
+void I_UnloadSong(void)
 {
-	mmStop();
+	if (current_mod_id != -1)
+	{
+		mmUnload(current_mod_id);
+		current_mod_id = -1;
+	}
 }
 
-void I_PauseMusic(void)
+boolean I_SetSongSpeed(float speed)
+{
+	(void)speed;
+	return true;
+}
+
+boolean I_SongPlaying(void)
+{
+	return mmActive();
+}
+
+boolean I_SongPaused(void)
+{
+	return false;
+}
+
+void I_PauseSong(void)
 {
 	mmPause();
 }
 
-void I_ResumeMusic(void)
+void I_ResumeSong(void)
 {
 	mmResume();
 }
 
-void I_SetMusicMusLump(void *data, size_t len)
+// These are needed for the linker
+void I_InitMusic(void) {}
+void I_ShutdownMusic(void) {}
+boolean I_LoadSong(char *data, size_t len)
 {
-	// Set music from memory
-	(void)data;
 	(void)len;
+	if (current_mod_id != -1)
+	{
+		//mmUnload(current_mod_id);
+	}
+		
+	// current_mod_id = mmLoad((mm_addr)data);
+	// Note: mmLoad expects a module ID from the soundbank, not a pointer.
+	// Dynamic loading from WAD is not directly supported by standard mmLoad.
+	(void)data;
+	return true; 
 }
 
-void I_InitMusic(void)
-{
-	// Music initialization
-}
+// Dummy function for I_PlayCD
+void I_PlayCD(UINT8 track, UINT8 looping) { (void)track; (void)looping; }
+void I_StopCD(void) {}
+void I_UpdateCD(void) {}
+void I_InitCD(void) {}
+void I_ResumeCD(void) {}
+boolean I_SetSongTrack(INT32 track) { (void)track; return true; }
 
-void I_ShutdownMusic(void)
-{
-	// Music shutdown
-	I_StopMusic();
-}
+musictype_t I_SongType(void) { return MU_NONE; }
+void I_UpdateMumble(const void *mobj, const void *listener) { (void)mobj; (void)listener; }
+void I_FreeSfx(sfxinfo_t *sfx) { (void)sfx; }
+void *I_GetSfx(sfxinfo_t *sfx) { (void)sfx; return NULL; }
+void I_StopSong(void) {}
 
+UINT8 sound_started = 0;
+
+consvar_t cd_volume = {"cd_volume", "31", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cdUpdate = {"cd_update", "1", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};

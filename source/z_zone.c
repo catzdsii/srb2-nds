@@ -33,6 +33,10 @@
 #include "m_misc.h" // M_Memcpy
 #include "lua_script.h"
 
+#ifdef _NDS
+#include "dsi/dsi_heap.h"
+#endif
+
 #ifdef HWRENDER
 #include "hardware/hw_main.h" // For hardware memory info
 #endif
@@ -44,6 +48,7 @@ static boolean Z_calloc = false;
 #endif
 
 #define ZONEID 0xa441d13d
+#define MAX_ZONEMEM (10*1024*1024) // 10MB Limit for DSi
 
 #ifdef ZDEBUG
 //#define ZDEBUG2
@@ -132,6 +137,7 @@ static memblock_t *Ptr2Memblock(void *ptr, const char* func)
 }
 
 static memblock_t head;
+static size_t total_allocated = 0;
 
 static void Command_Memfree_f(void);
 #ifdef ZDEBUG
@@ -142,12 +148,17 @@ void Z_Init(void)
 {
 	UINT32 total, memfree;
 
+#ifdef _NDS
+	DSI_InitHeap();
+#endif
+
 	memset(&head, 0x00, sizeof(head));
 
 	head.next = head.prev = &head;
 
 	memfree = I_GetFreeMem(&total)>>20;
 	CONS_Printf("System memory: %uMB - Free: %uMB\n", total>>20, memfree);
+	CONS_Printf("Zone memory limit: %uMB\n", MAX_ZONEMEM>>20);
 
 	// Note: This allocates memory. Watch out.
 	COM_AddCommand("memfree", Command_Memfree_f);
@@ -196,8 +207,15 @@ void Z_Free(void *ptr)
 	if (block->user != NULL)
 		*block->user = NULL;
 
+	// Update total allocated memory
+	total_allocated -= (block->size + sizeof(memblock_t));
+
 	// Free the memory and get rid of the block.
+#ifdef _NDS
+	DSI_Free(block->real);
+#else
 	free(block->real);
+#endif
 	block->prev->next = block->next;
 	block->next->prev = block->prev;
 	free(block);
@@ -210,14 +228,22 @@ void Z_Free(void *ptr)
 static void *xm(size_t size)
 {
 	const size_t padedsize = size+sizeof (size_t);
+#ifdef _NDS
+	void *p = DSI_Malloc(padedsize);
+#else
 	void *p = malloc(padedsize);
+#endif
 
 	if (p == NULL)
 	{
 		// Oh crumbs: we're out of heap. Try purging the cache and reallocating.
 		printf("xm purge!\n");
 		Z_FreeTags(PU_PURGELEVEL, INT32_MAX);
+#ifdef _NDS
+		p = DSI_Malloc(padedsize);
+#else
 		p = malloc(padedsize);
+#endif
 
 		if (p == NULL)
 		{
@@ -250,6 +276,12 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 	memhdr_t *hdr;
 	void *given;
 	size_t blocksize = extrabytes + sizeof *hdr + size;
+	size_t total_req = blocksize + sizeof(memblock_t);
+
+	if (total_allocated + total_req > MAX_ZONEMEM)
+	{
+		Z_FreeTags(PU_PURGELEVEL, INT32_MAX);
+	}
 
 #ifdef ZDEBUG2
 	CONS_Debug(DBG_MEMORY, "Z_Malloc %s:%d\n", file, line);
@@ -292,6 +324,8 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 #endif
 	block->size = blocksize;
 	block->realsize = size;
+
+	total_allocated += total_req;
 
 	hdr->id = ZONEID;
 	hdr->block = block;

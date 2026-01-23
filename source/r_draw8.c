@@ -22,8 +22,16 @@
 /**	\brief The R_DrawColumn_8 function
 	Experiment to make software go faster. Taken from the Boom source
 */
+#ifdef _NDS
+void R_DrawColumn_8_ASM(void);
+#endif
+
 void R_DrawColumn_8(void)
 {
+#ifdef _NDS
+	R_DrawColumn_8_ASM();
+	return;
+#endif
 	INT32 count;
 	register UINT8 *dest;
 	register fixed_t frac;
@@ -250,6 +258,10 @@ void R_DrawShadeColumn_8(void)
 */
 void R_DrawTranslucentColumn_8(void)
 {
+#ifdef _NDS
+	R_DrawColumn_8();
+	return;
+#endif
 	register INT32 count;
 	register UINT8 *dest;
 	register fixed_t frac, fracstep;
@@ -447,8 +459,16 @@ void R_DrawTranslatedColumn_8(void)
 /**	\brief The R_DrawSpan_8 function
 	Draws the actual span.
 */
-void R_DrawSpan_8 (void)
+#ifdef _NDS
+void R_DrawSpan_8_ASM(void);
+#endif
+
+void R_DrawSpan_8(void)
 {
+#ifdef _NDS
+	R_DrawSpan_8_ASM();
+	return;
+#endif
 	UINT32 xposition;
 	UINT32 yposition;
 	UINT32 xstep, ystep;
@@ -692,6 +712,10 @@ void R_DrawTiltedSpan_8(void)
 */
 void R_DrawTiltedTranslucentSpan_8(void)
 {
+#ifdef _NDS
+	R_DrawTiltedSpan_8();
+	return;
+#endif
 	// x1, x2 = ds_x1, ds_x2
 	int width = ds_x2 - ds_x1;
 	double iz, uz, vz;
@@ -1190,6 +1214,10 @@ void R_DrawTranslucentSplat_8 (void)
 */
 void R_DrawTranslucentSpan_8 (void)
 {
+#ifdef _NDS
+	R_DrawSpan_8();
+	return;
+#endif
 	UINT32 xposition;
 	UINT32 yposition;
 	UINT32 xstep, ystep;

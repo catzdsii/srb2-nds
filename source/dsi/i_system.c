@@ -24,7 +24,11 @@
 #include "../m_argv.h"
 #include "../d_main.h"
 
-extern volatile int vblankCount;
+volatile int vblankCount = 0;
+
+void VblankHandler(void) {
+	vblankCount++;
+}
 
 tic_t I_GetTime(void)
 {
@@ -51,6 +55,9 @@ void I_Sleep(void)
 INT32 I_StartupSystem(void)
 {
 	// System already initialized in main()
+	irqSet(IRQ_VBLANK, VblankHandler);
+	irqEnable(IRQ_VBLANK);
+	
 	CONS_Printf("DSi system initialized.\n");
 	return 0;
 }
@@ -69,7 +76,10 @@ void I_Error(const char *error, ...)
 	vsnprintf(errormsg, sizeof(errormsg), error, argptr);
 	va_end(argptr);
 	
-	consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 1, 0, false, true);
+	// Ensure Sub Screen is in text mode
+	videoSetModeSub(MODE_0_2D | DISPLAY_BG0_ACTIVE);
+	vramSetBankC(VRAM_C_SUB_BG);
+	consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 	iprintf("FATAL ERROR:\n");
 	iprintf("%s\n", errormsg);
 	iprintf("\nPress START to quit.\n");
@@ -114,6 +124,7 @@ void I_ShutdownTimer(void)
 	// Cleanup if needed
 }
 
+/*
 void I_StartupNetwork(void)
 {
 	// Network not supported on DSi
@@ -123,7 +134,9 @@ void I_ShutdownNetwork(void)
 {
 	// Network not supported on DSi
 }
+*/
 
+/*
 void I_StartupSound(void)
 {
 	// Sound initialization in i_sound.c
@@ -143,6 +156,7 @@ void I_ShutdownGraphics(void)
 {
 	// Graphics cleanup in i_video.c
 }
+*/
 
 void I_GetEvent(void)
 {
@@ -154,6 +168,7 @@ void I_OsPolling(void)
 	// Polling handled elsewhere
 }
 
+/*
 void I_UpdateNoBlit(void)
 {
 	// Not needed for DSi
@@ -179,6 +194,7 @@ void I_EndRead(void)
 {
 	// Not needed
 }
+*/
 
 void I_StartupMouse(void)
 {
@@ -187,7 +203,96 @@ void I_StartupMouse(void)
 
 void I_ShutdownMouse(void)
 {
-	// Mouse not supported on DSi
+}
+
+// Stubs for missing functions
+void I_Tactile(FFType Type, const JoyFF_t *Effect) { (void)Type; (void)Effect; }
+void I_UpdateNoVsync(void) {}
+const CPUInfoFlags *I_CPUInfo(void) { return NULL; }
+
+INT32 I_NumJoys(void)
+{
+	return 0;
+}
+
+const char *I_GetJoyName(INT32 joyindex)
+{
+	(void)joyindex;
+	return NULL;
+}
+
+INT32 I_mkdir(const char *dirname, INT32 unixmode)
+{
+	(void)dirname;
+	(void)unixmode;
+	return -1;
+}
+
+// Clipboard stubs
+INT32 I_ClipboardCopy(const char *data, size_t size) { (void)data; (void)size; return 0; }
+const char *I_ClipboardPaste(void) { return NULL; }
+
+// Input stubs
+INT32 I_GetKey(void) { return 0; }
+ticcmd_t *I_BaseTiccmd(void) { return NULL; }
+ticcmd_t *I_BaseTiccmd2(void) { return NULL; }
+
+void I_StartupMouse2(void) {}
+void I_InitJoystick(void) {}
+void I_InitJoystick2(void) {}
+
+const char *I_LocateWad(void)
+{
+	FILE *f;
+
+	// Check 1: Absolute path on fat device (standard)
+	f = fopen("fat:/srb2/srb2.srb", "rb");
+	if (f) { fclose(f); return "fat:/srb2"; }
+
+	f = fopen("fat:/srb2/srb2.wad", "rb");
+	if (f) { fclose(f); return "fat:/srb2"; }
+
+	// Check 2: Absolute path on sd device (MelonDS/TwilightMenu sometimes prefer this)
+	f = fopen("sd:/srb2/srb2.srb", "rb");
+	if (f) { fclose(f); return "sd:/srb2"; }
+
+	f = fopen("sd:/srb2/srb2.wad", "rb");
+	if (f) { fclose(f); return "sd:/srb2"; }
+
+	// Check 3: Current directory 'srb2' folder (relative)
+	f = fopen("srb2/srb2.srb", "rb");
+	if (f) { fclose(f); return "srb2"; }
+
+	f = fopen("srb2/srb2.wad", "rb");
+	if (f) { fclose(f); return "srb2"; }
+
+	// Check 4: Root directory (if user put files in root)
+	f = fopen("srb2.srb", "rb");
+	if (f) { fclose(f); return "."; } // Return current directory
+
+	f = fopen("srb2.wad", "rb");
+	if (f) { fclose(f); return "."; }
+
+	// Check 5: Root absolute
+	f = fopen("fat:/srb2.srb", "rb");
+	if (f) { fclose(f); return "fat:/"; }
+
+	f = fopen("sd:/srb2.srb", "rb");
+	if (f) { fclose(f); return "sd:/"; }
+
+	return NULL;
+}
+void I_RegisterSysCommands(void) {}
+void I_GetDiskFreeSpace(INT64 *total)
+{
+	if (total)
+		*total = 1024 * 1024 * 1024; // 1GB
+}
+
+char *I_GetEnv(const char *name)
+{
+	(void)name;
+	return NULL;
 }
 
 void I_StartupJoystick(void)
@@ -219,12 +324,14 @@ void I_GetRandomBytes(void *bytes, size_t size)
 	}
 }
 
-void I_GetMemFree(size_t *freebytes)
+UINT32 I_GetFreeMem(UINT32 *total)
 {
 	// Return approximate free memory
 	// DSi has 16MB total, but we can't easily query free memory
 	// This is a rough estimate
-	*freebytes = 4 * 1024 * 1024; // Assume 4MB free
+	if (total)
+		*total = 16 * 1024 * 1024;
+	return 10 * 1024 * 1024; // Assume 10MB free on DSi
 }
 
 void I_DisplayType(void)

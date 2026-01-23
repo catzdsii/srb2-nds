@@ -1,0 +1,13 @@
+build_dsi/
+*.o
+*.d
+*.elf
+*.img
+*.img.idx
+.vscode/
+*.lst
+*.map
+build_log_2.txt
+SD_ROOT/
+srb2_dsi.nds
+*.nds

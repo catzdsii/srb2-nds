@@ -16,6 +16,7 @@
 #include <string.h>
 #include "dsi_utils.h"
 
+/*
 void *DSI_Malloc(size_t size)
 {
 	void *ptr = malloc(size);
@@ -31,6 +32,7 @@ void DSI_Free(void *ptr)
 	if (ptr)
 		free(ptr);
 }
+*/
 
 void DSI_ConvertTexture8to16(UINT8 *src8, u16 *dst16, int width, int height, u16 *palette)
 {

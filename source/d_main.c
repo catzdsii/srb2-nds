@@ -574,7 +574,7 @@ void D_SRB2Loop(void)
 #ifdef NDS_VERS_STRING
 	CONS_Printf("3DS port version: %s\n", NDS_VERS_STRING);
 #endif
-	CONS_Printf("3DS Port by derrek.\n");
+	CONS_Printf("DSi Port by catzdsii\n");
 #endif
 
 	if (rendermode == render_soft)
@@ -1131,9 +1131,11 @@ void D_SRB2Main(void)
 	CONS_Printf("I_StartupTimer()...\n");
 	I_StartupTimer();
 
+	CONS_Printf("P_BackupTables()...\n");
 	// Make backups of some SOCcable tables.
 	P_BackupTables();
 
+	CONS_Printf("M_SetupDefaultConditionSets()...\n");
 	// Setup default unlockable conditions
 	M_SetupDefaultConditionSets();
 
@@ -1145,17 +1147,19 @@ void D_SRB2Main(void)
 #else
 		I_Error("A WAD file was not found or not valid.\nCheck the log to see which ones.\n");
 #endif
+	CONS_Printf("D_CleanFile()...\n");
 	D_CleanFile();
 
 #ifndef DEVELOP // md5s last updated 12/14/14
 
 	// Check MD5s of autoloaded files
-	W_VerifyFileMD5(0, ASSET_HASH_SRB2_SRB); // srb2.srb/srb2.wad
-	W_VerifyFileMD5(1, ASSET_HASH_ZONES_DTA); // zones.dta
-	W_VerifyFileMD5(2, ASSET_HASH_PLAYER_DTA); // player.dta
-	W_VerifyFileMD5(3, ASSET_HASH_RINGS_DTA); // rings.dta
+	CONS_Printf("Skipping MD5 checks for DSi speed...\n");
+	//W_VerifyFileMD5(0, ASSET_HASH_SRB2_SRB); // srb2.srb/srb2.wad
+	//W_VerifyFileMD5(1, ASSET_HASH_ZONES_DTA); // zones.dta
+	//W_VerifyFileMD5(2, ASSET_HASH_PLAYER_DTA); // player.dta
+	//W_VerifyFileMD5(3, ASSET_HASH_RINGS_DTA); // rings.dta
 #ifdef USE_PATCH_DTA
-	W_VerifyFileMD5(4, ASSET_HASH_PATCH_DTA); // patch.dta
+	//W_VerifyFileMD5(4, ASSET_HASH_PATCH_DTA); // patch.dta
 #endif
 
 	// don't check music.dta because people like to modify it, and it doesn't matter if they do
@@ -1167,6 +1171,7 @@ void D_SRB2Main(void)
 	++mainwads; // patch.dta adds one more
 #endif
 
+	CONS_Printf("cht_Init()...\n");
 	cht_Init();
 
 	//---------------------------------------------------- READY SCREEN
@@ -1174,23 +1179,29 @@ void D_SRB2Main(void)
 
 	CONS_Printf("I_StartupGraphics()...\n");
 	I_StartupGraphics();
+	CONS_Printf("I_StartupGraphics done.\n");
 
 	//--------------------------------------------------------- CONSOLE
 	// setup loading screen
+	CONS_Printf("SCR_Startup()...\n");
 	SCR_Startup();
+	CONS_Printf("SCR_Startup done.\n");
 
 	// we need the font of the console
 	CONS_Printf("HU_Init(): Setting up heads up display.\n");
 	HU_Init();
 
+	CONS_Printf("COM_Init()...\n");
 	COM_Init();
 	// libogc has a CON_Init function, we must rename SRB2's CON_Init in WII/libogc
 #ifndef _WII
+	CONS_Printf("CON_Init()...\n");
 	CON_Init();
 #else
 	CON_InitWii();
 #endif
 
+	CONS_Printf("Registering commands...\n");
 	D_RegisterServerCommands();
 	D_RegisterClientCommands(); // be sure that this is called before D_CheckNetGame
 	R_RegisterEngineStuff();
@@ -1199,9 +1210,13 @@ void D_SRB2Main(void)
 	I_RegisterSysCommands();
 
 	//--------------------------------------------------------- CONFIG.CFG
+	CONS_Printf("M_FirstLoadConfig()...\n");
 	M_FirstLoadConfig(); // WARNING : this do a "COM_BufExecute()"
+	CONS_Printf("M_FirstLoadConfig done.\n");
 
+	CONS_Printf("G_LoadGameData()...\n");
 	G_LoadGameData();
+	CONS_Printf("G_LoadGameData done.\n");
 
 #if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (HAVE_SDL)
 	VID_PrepareModeList(); // Regenerate Modelist according to cv_fullscreen

@@ -266,10 +266,10 @@ static INT32 deh_num_warning = 0;
 FUNCPRINTF static void deh_warning(const char *first, ...)
 {
 	va_list argptr;
-	char *buf = Z_Malloc(1000, PU_STATIC, NULL);
+	char buf[1000];
 
 	va_start(argptr, first);
-	vsnprintf(buf, 1000, first, argptr); // sizeof only returned 4 here. it didn't like that pointer.
+	vsnprintf(buf, sizeof(buf), first, argptr); // sizeof only returned 4 here. it didn't like that pointer.
 	va_end(argptr);
 
 	if(dbg_line == -1) // Not in a SOC, line number unknown.
@@ -279,7 +279,7 @@ FUNCPRINTF static void deh_warning(const char *first, ...)
 
 	deh_num_warning++;
 
-	Z_Free(buf);
+	//Z_Free(buf);
 }
 
 static void deh_strlcpy(char *dst, const char *src, size_t size, const char *warntext)
@@ -428,6 +428,8 @@ static void readAnimTex(MYFILE *f, INT32 num)
 			else deh_warning("readAnimTex %d: unknown word '%s'", num, word);
 		}
 	} while (s[0] != '\n' && !myfeof(f)); //finish when the line is empty
+	
+	//Z_Free(s);
 }
 */
 
@@ -449,7 +451,7 @@ static boolean findFreeSlot(INT32 *num)
 // For modifying the character select screen
 static void readPlayer(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word;
 	char *word2;
 	INT32 i;
@@ -459,7 +461,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -604,14 +606,14 @@ done:
 // TODO: Warnings for running out of freeslots
 static void readfreeslots(MYFILE *f)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word,*type;
 	char *tmp;
 	int i;
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -679,18 +681,20 @@ static void readfreeslots(MYFILE *f)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-	Z_Free(s);
+	CONS_Printf("RMC: Loop finished, stack s used\n");
+	//Z_Free(s);
+	CONS_Printf("RMC: Returning from readlevelheader\n");
 }
 
 static void readthing(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word, *word2;
 	char *tmp;
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -840,13 +844,13 @@ static void readthing(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 #ifdef HWRENDER
 static void readlight(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word;
 	char *tmp;
 	INT32 value;
@@ -854,7 +858,7 @@ static void readlight(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -917,19 +921,19 @@ static void readlight(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void readspritelight(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word;
 	char *tmp;
 	INT32 value;
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -961,7 +965,7 @@ static void readspritelight(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 #endif // HWRENDER
 
@@ -1000,7 +1004,7 @@ static const struct {
 
 static void readlevelheader(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word;
 	char *word2;
 	//char *word3; // Non-uppercase version of word2
@@ -1014,11 +1018,15 @@ static void readlevelheader(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
-			if (s[0] == '\n')
+			//CONS_Printf("RMC: %s", s);
+			if (s[0] == '\n' || s[0] == '\r')
+			{
+				//CONS_Printf("RMC: EOL detected, breaking\n");
 				break;
-
+			}
+			
 			// First remove trailing newline, if there is one
 			tmp = strchr(s, '\n');
 			if (tmp)
@@ -1035,8 +1043,14 @@ static void readlevelheader(MYFILE *f, INT32 num)
 
 			// Get the part before the " = "
 			tmp = strchr(s, '=');
+			if (!tmp || tmp == s)
+			{
+				//CONS_Printf("RMC Skip: %s\n", s);
+				continue;
+			}
 			*(tmp-1) = '\0';
 			strupr(word);
+			//CONS_Printf("RMC: %s\n", word);
 
 			// Now get the part after
 			word2 = tmp += 2;
@@ -1221,7 +1235,10 @@ static void readlevelheader(MYFILE *f, INT32 num)
 					deh_warning("Level header %d: invalid unlockable number %d", num, i);
 			}
 			else if (fastcmp(word, "LEVELSELECT"))
-				mapheaderinfo[num-1]->levelselect = (UINT8)i;
+		{
+			mapheaderinfo[num-1]->levelselect = (UINT8)i;
+			CONS_Printf("RMC: Processed LevelSelect %d - proceeding to next line\n", i);
+		}
 			else if (fastcmp(word, "SKYBOXSCALE"))
 				mapheaderinfo[num-1]->skybox_scalex = mapheaderinfo[num-1]->skybox_scaley = mapheaderinfo[num-1]->skybox_scalez = (INT16)i;
 			else if (fastcmp(word, "SKYBOXSCALEX"))
@@ -1324,26 +1341,39 @@ static void readlevelheader(MYFILE *f, INT32 num)
 			}
 			else
 				deh_warning("Level header %d: unknown word '%s'", num, word);
+
+			//CONS_Printf("RMC Done: %s\n", word);
+		}
+		else
+		{
+			CONS_Printf("RMC: myfgets returned NULL\n");
+			if (!myfeof(f))
+			{
+				CONS_Printf("RMC: EOF not set, forcing break to avoid infinite loop\n");
+				break;
+			}
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 {
-	char *s = Z_Calloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[4096];
 	char *word;
 	char *word2;
 	INT32 i;
 	UINT16 usi;
 	UINT8 picid;
 
+	memset(s, 0, sizeof(s));
+
 	DEH_WriteUndoline("SCENETEXT", cutscenes[num]->scene[scenenum].text, UNDO_ENDTEXT);
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof(s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1357,8 +1387,8 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 			if (fastcmp(word, "SCENETEXT"))
 			{
 				char *scenetext = NULL;
-				char *buffer;
-				const int bufferlen = 4096;
+				//char *buffer;
+				//const int bufferlen = 4096;
 
 				for (i = 0; i < MAXLINELEN; i++)
 				{
@@ -1386,11 +1416,12 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 					}
 				}
 
-				buffer = Z_Malloc(4096, PU_STATIC, NULL);
+				//buffer = Z_Malloc(4096, PU_STATIC, NULL);
+				char buffer[4096];
 				strcpy(buffer, scenetext);
 
 				strcat(buffer,
-					myhashfgets(scenetext, bufferlen
+					myhashfgets(scenetext, 4096 //bufferlen
 					- strlen(buffer) - 1, f));
 
 				// A cutscene overwriting another one...
@@ -1398,7 +1429,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 
 				cutscenes[num]->scene[scenenum].text = Z_StrDup(buffer);
 
-				Z_Free(buffer);
+				//Z_Free(buffer);
 
 				continue;
 			}
@@ -1518,12 +1549,12 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void readcutscene(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[4096];
 	char *word;
 	char *word2;
 	char *tmp;
@@ -1538,7 +1569,7 @@ static void readcutscene(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof(s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1585,12 +1616,12 @@ static void readcutscene(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void readhuditem(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[4096];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -1598,7 +1629,7 @@ static void readhuditem(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof(s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1616,8 +1647,14 @@ static void readhuditem(MYFILE *f, INT32 num)
 
 			// Get the part before the " = "
 			tmp = strchr(s, '=');
+			if (!tmp || tmp == s)
+			{
+				CONS_Printf("MainCfg Skip: %s\n", s);
+				continue;
+			}
 			*(tmp-1) = '\0';
 			strupr(word);
+			CONS_Printf("MainCfg: %s\n", word);
 
 			// Now get the part after
 			word2 = tmp += 2;
@@ -1640,7 +1677,7 @@ static void readhuditem(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 /*
@@ -1983,19 +2020,19 @@ static void readframe(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f));
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void readsound(MYFILE *f, INT32 num, const char *savesfxnames[])
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word;
 	char *tmp;
 	INT32 value;
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -2046,7 +2083,7 @@ static void readsound(MYFILE *f, INT32 num, const char *savesfxnames[])
 		}
 	} while (!myfeof(f));
 
-	Z_Free(s);
+	//Z_Free(s);
 
 	(void)savesfxnames;
 }
@@ -2090,7 +2127,7 @@ static boolean GoodDataFileName(const char *s)
 
 static void reademblemdata(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -2129,6 +2166,11 @@ static void reademblemdata(MYFILE *f, INT32 num)
 
 			// Get the part before the " = "
 			tmp = strchr(s, '=');
+			if (!tmp || tmp == s)
+			{
+				CONS_Printf("MainCfg Skip: %s\n", s);
+				continue;
+			}
 			*(tmp-1) = '\0';
 			strupr(word);
 
@@ -2228,13 +2270,13 @@ static void reademblemdata(MYFILE *f, INT32 num)
 		default:
 			emblemlocations[num-1].color = SKINCOLOR_BLUE; break;
 	}
-
-	Z_Free(s);
+	CONS_Printf("DEH: Finished loading file\n");
+	//Z_Free(s);
 }
 
 static void readextraemblemdata(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -2269,6 +2311,11 @@ static void readextraemblemdata(MYFILE *f, INT32 num)
 
 			// Get the part before the " = "
 			tmp = strchr(s, '=');
+			if (!tmp || tmp == s)
+			{
+				CONS_Printf("MainCfg Skip: %s\n", s);
+				continue;
+			}
 			*(tmp-1) = '\0';
 			strupr(word);
 
@@ -2310,12 +2357,12 @@ static void readextraemblemdata(MYFILE *f, INT32 num)
 	if (!extraemblems[num-1].color)
 		extraemblems[num-1].color = SKINCOLOR_BLUE;
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void readunlockable(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -2353,6 +2400,11 @@ static void readunlockable(MYFILE *f, INT32 num)
 
 			// Get the part before the " = "
 			tmp = strchr(s, '=');
+			if (!tmp || tmp == s)
+			{
+				CONS_Printf("MainCfg Skip: %s\n", s);
+				continue;
+			}
 			*(tmp-1) = '\0';
 			strupr(word);
 
@@ -2611,7 +2663,7 @@ static void readcondition(UINT8 set, UINT32 id, char *word2)
 
 static void readconditionset(MYFILE *f, UINT8 setnum)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -2640,6 +2692,11 @@ static void readconditionset(MYFILE *f, UINT8 setnum)
 
 			// Get the part before the " = "
 			tmp = strchr(s, '=');
+			if (!tmp || tmp == s)
+			{
+				CONS_Printf("MainCfg Skip: %s\n", s);
+				continue;
+			}
 			*(tmp-1) = '\0';
 			strupr(word);
 
@@ -2675,7 +2732,7 @@ static void readconditionset(MYFILE *f, UINT8 setnum)
 
 static void readtexture(MYFILE *f, const char *name)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word;
 	char *word2;
 	char *tmp;
@@ -2773,12 +2830,12 @@ static void readtexture(MYFILE *f, const char *name)
 	textureheight[i] = texture->height << FRACBITS;
 
 	// Clean up.
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void readpatch(MYFILE *f, const char *name, UINT16 wad)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word;
 	char *word2;
 	char *tmp;
@@ -2802,7 +2859,7 @@ static void readpatch(MYFILE *f, const char *name, UINT16 wad)
 	// note: undoing this patch will be done by other means
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -2859,16 +2916,19 @@ static void readpatch(MYFILE *f, const char *name, UINT16 wad)
 
 static void readmaincfg(MYFILE *f)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word = s;
 	char *word2;
 	char *tmp;
 	INT32 value;
 
+	CONS_Printf("Reading Main Config...\n");
+
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
+			//CONS_Printf("MainCfg Read: %s\n", s);
 			if (s[0] == '\n')
 				break;
 
@@ -2885,6 +2945,11 @@ static void readmaincfg(MYFILE *f)
 
 			// Get the part before the " = "
 			tmp = strchr(s, '=');
+			if (!tmp || tmp == s)
+			{
+				CONS_Printf("MainCfg Skip: %s\n", s);
+				continue;
+			}
 			*(tmp-1) = '\0';
 			strupr(word);
 
@@ -3091,12 +3156,12 @@ static void readmaincfg(MYFILE *f)
 		}
 	} while (!myfeof(f));
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void readwipes(MYFILE *f)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word = s;
 	char *pword = word;
 	char *word2;
@@ -3106,7 +3171,7 @@ static void readwipes(MYFILE *f)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -3124,6 +3189,11 @@ static void readwipes(MYFILE *f)
 
 			// Get the part before the " = "
 			tmp = strchr(s, '=');
+			if (!tmp || tmp == s)
+			{
+				CONS_Printf("MainCfg Skip: %s\n", s);
+				continue;
+			}
 			*(tmp-1) = '\0';
 			strupr(word);
 
@@ -3250,28 +3320,28 @@ static void readwipes(MYFILE *f)
 		}
 	} while (!myfeof(f));
 
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 // Used when you do something invalid like read a bad item number
 // to prevent extra unnecessary errors
 static void ignorelines(MYFILE *f)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, 1024, f))
 		{
 			if (s[0] == '\n')
 				break;
 		}
 	} while (!myfeof(f));
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 static void DEH_LoadDehackedFile(MYFILE *f, UINT16 wad)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char s[1024];
 	char *word;
 	char *word2;
 	INT32 i;
@@ -3304,7 +3374,13 @@ static void DEH_LoadDehackedFile(MYFILE *f, UINT16 wad)
 		INT32 size = 0;
 		char *traverse;
 
-		myfgets(s, MAXLINELEN, f);
+		CONS_Printf("DEH: Reading next line...\n");
+		if (!myfgets(s, MAXLINELEN, f))
+		{
+			CONS_Printf("DEH: myfgets returned NULL\n");
+			break;
+		}
+		CONS_Printf("DEH: %s", s); // Debug print
 		if (s[0] == '\n' || s[0] == '#')
 			continue;
 
@@ -3437,14 +3513,20 @@ static void DEH_LoadDehackedFile(MYFILE *f, UINT16 wad)
 						i = M_MapNumber(word2[0], word2[1]);
 
 					if (i > 0 && i <= NUMMAPS)
-						readlevelheader(f, i);
-					else
-					{
-						deh_warning("Level number %d out of range (1 - %d)", i, NUMMAPS);
-						ignorelines(f);
-					}
-					DEH_WriteUndoline(word, word2, UNDO_HEADER);
+				{
+					CONS_Printf("DEH: Calling readlevelheader %d\n", i);
+					readlevelheader(f, i);
+					CONS_Printf("DEH: Returned from readlevelheader\n");
 				}
+				else
+				{
+					deh_warning("Level number %d out of range (1 - %d)", i, NUMMAPS);
+					ignorelines(f);
+				}
+				CONS_Printf("DEH: Writing undo line\n");
+				DEH_WriteUndoline(word, word2, UNDO_HEADER);
+				CONS_Printf("DEH: Wrote undo line\n");
+			}
 				else if (fastcmp(word, "CUTSCENE"))
 				{
 					if (i > 0 && i < 129)
@@ -3676,8 +3758,9 @@ static void DEH_LoadDehackedFile(MYFILE *f, UINT16 wad)
 		}
 	}
 
+	CONS_Printf("DEH: Finished loading file\n");
 	deh_loaded = true;
-	Z_Free(s);
+	//Z_Free(s);
 }
 
 // read dehacked lump in a wad (there is special trick for for deh
@@ -8340,3 +8423,4 @@ void LUA_SetActionByName(void *state, const char *actiontocompare)
 }
 
 #endif // HAVE_BLUA
+

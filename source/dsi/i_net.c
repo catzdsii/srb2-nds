@@ -21,6 +21,8 @@ INT32 I_GetLocalAddress(void) { return 0; }
 const char *I_GetLocalAddressString(void) { return "127.0.0.1"; }
 
 // Network function pointers
+// Network function pointers - defined in d_net.c
+/*
 void (*I_NetSend)(void) = NULL;
 boolean (*I_NetGet)(void) = NULL;
 boolean (*I_NetCanGet)(void) = NULL;
@@ -36,7 +38,8 @@ const char *(*I_GetBanAddress)(size_t ban) = NULL;
 const char *(*I_GetBanMask)(size_t ban) = NULL;
 boolean (*I_SetBanAddress)(const char *address, const char *mask) = NULL;
 boolean *bannednode = NULL;
+*/
 
-SINT8 I_NetMakeNode(const char *address) { (void)address; return -1; }
+//SINT8 I_NetMakeNode(const char *address) { (void)address; return -1; }
 boolean I_NetMakeAddress(const char *address, INT32 *netaddress) { (void)address; (void)netaddress; return false; }
 

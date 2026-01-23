@@ -631,21 +631,24 @@ void M_SetupDefaultConditionSets(void)
 	M_AddRawCondition(22, 1, UC_MAPBEATEN, 57, 0, 0);
 
 	// --  30: Perfect Bonus
-	M_AddRawCondition(30, 1,  UC_MAPPERFECT,  1, 0, 0);
-	M_AddRawCondition(30, 2,  UC_MAPPERFECT,  2, 0, 0);
-	M_AddRawCondition(30, 3,  UC_MAPPERFECT,  4, 0, 0);
-	M_AddRawCondition(30, 4,  UC_MAPPERFECT,  5, 0, 0);
-	M_AddRawCondition(30, 5,  UC_MAPPERFECT,  7, 0, 0);
-	M_AddRawCondition(30, 6,  UC_MAPPERFECT,  8, 0, 0);
-	M_AddRawCondition(30, 7,  UC_MAPPERFECT, 10, 0, 0);
-	M_AddRawCondition(30, 8,  UC_MAPPERFECT, 11, 0, 0);
-	M_AddRawCondition(30, 9,  UC_MAPPERFECT, 13, 0, 0);
-	M_AddRawCondition(30, 10, UC_MAPPERFECT, 16, 0, 0);
-	M_AddRawCondition(30, 11, UC_MAPPERFECT, 22, 0, 0);
-	M_AddRawCondition(30, 12, UC_MAPPERFECT, 23, 0, 0);
-	M_AddRawCondition(30, 13, UC_MAPPERFECT, 24, 0, 0);
-	M_AddRawCondition(30, 14, UC_MAPPERFECT, 40, 0, 0);
-	M_AddRawCondition(30, 15, UC_MAPPERFECT, 41, 0, 0);
+	// Optimized allocation to prevent Z_Realloc stress on DSi
+	{
+		INT32 i;
+		const INT32 perfectmaps[] = {1, 2, 4, 5, 7, 8, 10, 11, 13, 16, 22, 23, 24, 40, 41};
+		const INT32 numperfect = sizeof(perfectmaps)/sizeof(perfectmaps[0]);
+		
+		conditionSets[29].numconditions = numperfect;
+		conditionSets[29].condition = Z_Malloc(sizeof(condition_t)*numperfect, PU_STATIC, NULL);
+		
+		for (i = 0; i < numperfect; i++)
+		{
+			conditionSets[29].condition[i].id = i + 1;
+			conditionSets[29].condition[i].type = UC_MAPPERFECT;
+			conditionSets[29].condition[i].requirement = perfectmaps[i];
+			conditionSets[29].condition[i].extrainfo1 = 0;
+			conditionSets[29].condition[i].extrainfo2 = 0;
+		}
+	}
 
 	// --  40: Find 20 emblems
 	M_AddRawCondition(40, 1, UC_TOTALEMBLEMS, 20, 0, 0);
@@ -666,13 +669,23 @@ void M_SetupDefaultConditionSets(void)
 	M_AddRawCondition(45, 1, UC_TOTALEMBLEMS, 160, 0, 0);
 
 	// --  50: A rank all NiGHTS special stages
-	M_AddRawCondition(50, 1, UC_NIGHTSGRADE, GRADE_A, 50, 0);
-	M_AddRawCondition(50, 1, UC_NIGHTSGRADE, GRADE_A, 51, 0);
-	M_AddRawCondition(50, 1, UC_NIGHTSGRADE, GRADE_A, 52, 0);
-	M_AddRawCondition(50, 1, UC_NIGHTSGRADE, GRADE_A, 53, 0);
-	M_AddRawCondition(50, 1, UC_NIGHTSGRADE, GRADE_A, 54, 0);
-	M_AddRawCondition(50, 1, UC_NIGHTSGRADE, GRADE_A, 55, 0);
-	M_AddRawCondition(50, 1, UC_NIGHTSGRADE, GRADE_A, 56, 0);
+	{
+		INT32 i;
+		const INT32 nightsstages[] = {50, 51, 52, 53, 54, 55, 56};
+		const INT32 numnights = sizeof(nightsstages)/sizeof(nightsstages[0]);
+		
+		conditionSets[49].numconditions = numnights;
+		conditionSets[49].condition = Z_Malloc(sizeof(condition_t)*numnights, PU_STATIC, NULL);
+		
+		for (i = 0; i < numnights; i++)
+		{
+			conditionSets[49].condition[i].id = 1;
+			conditionSets[49].condition[i].type = UC_NIGHTSGRADE;
+			conditionSets[49].condition[i].requirement = GRADE_A;
+			conditionSets[49].condition[i].extrainfo1 = nightsstages[i];
+			conditionSets[49].condition[i].extrainfo2 = 0;
+		}
+	}
 }
 
 void M_AddRawCondition(UINT8 set, UINT8 id, conditiontype_t c, INT32 r, INT16 x1, INT16 x2)

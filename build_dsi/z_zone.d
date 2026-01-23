@@ -143,7 +143,8 @@ z_zone.o: C:/Users/tiwin/Downloads/srb2_3ds-master/source/z_zone.c \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/luaconf.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/lualib.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/lua.h \
- C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/lauxlib.h
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/lauxlib.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/dsi/dsi_heap.h
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomdef.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomtype.h:
 C:/devkitPro/libnds/include/nds.h:
@@ -290,3 +291,4 @@ C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/luaconf.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/lualib.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/lua.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/blua/lauxlib.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/dsi/dsi_heap.h:

@@ -1,5 +1,5 @@
 
-# SRB2 3DS / DSi
+# SRB2 DSi / DSi Xl
 A fork from the port of Sonic Robo Blast 2 to the Nintendo New3DS/2DS consoles, with a additional port for Nintendo DSi and DSi XL.
 
 ## Installing
@@ -9,7 +9,7 @@ A fork from the port of Sonic Robo Blast 2 to the Nintendo New3DS/2DS consoles, 
 * Download the latest release and extract srb2_dsi.nds.
 * Copy srb2_dsi.nds to your SD card in the /roms/nds/ folder (if using Twilight Menu++).
 * Download SRB2's assets and extract them to the appropriate location on your SD card.
-* See [README_DSI.md](README_DSI.md) for detailed installation instructions.
+* See [README_DSI.md](README_DSI.md) or [README_DATA.md](README_DATA.md) for detailed installation instructions and data files.
 
 ## Building
 
