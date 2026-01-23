@@ -245,19 +245,22 @@ const char *I_LocateWad(void)
 {
 	FILE *f;
 
-	// Check 1: Absolute path on fat device (standard)
-	f = fopen("fat:/srb2/srb2.srb", "rb");
-	if (f) { fclose(f); return "fat:/srb2"; }
-
-	f = fopen("fat:/srb2/srb2.wad", "rb");
-	if (f) { fclose(f); return "fat:/srb2"; }
-
-	// Check 2: Absolute path on sd device (MelonDS/TwilightMenu sometimes prefer this)
+	// Check 1: Absolute path on sd device (DSi Internal SD - Preferred)
 	f = fopen("sd:/srb2/srb2.srb", "rb");
 	if (f) { fclose(f); return "sd:/srb2"; }
 
 	f = fopen("sd:/srb2/srb2.wad", "rb");
 	if (f) { fclose(f); return "sd:/srb2"; }
+
+	// Check 2: Absolute path on fat device (Flashcard or SD alias)
+	// DISABLED: Accessing fat:/ in DSi mode hangs on real hardware if Slot-1 is empty/unreadable
+	/*
+	f = fopen("fat:/srb2/srb2.srb", "rb");
+	if (f) { fclose(f); return "fat:/srb2"; }
+
+	f = fopen("fat:/srb2/srb2.wad", "rb");
+	if (f) { fclose(f); return "fat:/srb2"; }
+	*/
 
 	// Check 3: Current directory 'srb2' folder (relative)
 	f = fopen("srb2/srb2.srb", "rb");
@@ -267,18 +270,14 @@ const char *I_LocateWad(void)
 	if (f) { fclose(f); return "srb2"; }
 
 	// Check 4: Root directory (if user put files in root)
+	f = fopen("sd:/srb2.srb", "rb");
+	if (f) { fclose(f); return "sd:/"; }
+
 	f = fopen("srb2.srb", "rb");
 	if (f) { fclose(f); return "."; } // Return current directory
 
 	f = fopen("srb2.wad", "rb");
 	if (f) { fclose(f); return "."; }
-
-	// Check 5: Root absolute
-	f = fopen("fat:/srb2.srb", "rb");
-	if (f) { fclose(f); return "fat:/"; }
-
-	f = fopen("sd:/srb2.srb", "rb");
-	if (f) { fclose(f); return "sd:/"; }
 
 	return NULL;
 }

@@ -30,9 +30,9 @@ boolean midi_disabled = false;
 boolean shiftdown = false;
 boolean ctrldown = false;
 
-char srb2home[MAX_WADPATH] = "fat:/";
-char srb2path[MAX_WADPATH] = "fat:/";
-char savegamename[256] = "fat:/srb2save.ssg";
+char srb2home[MAX_WADPATH] = "sd:/";
+char srb2path[MAX_WADPATH] = "sd:/";
+char savegamename[256] = "sd:/srb2save.ssg";
 const char *pandf = "%s/%s";
 
 tic_t rendergametic = 0;
@@ -65,6 +65,15 @@ void D_SRB2Main_DSi(void)
 
 	// 4. Try to load WAD files (essential for SRB2)
 	const char *wad_paths[] = {
+		"sd:/srb2/srb2.wad",
+		"sd:/srb2/zones.wad",
+		"sd:/srb2/player.dta",
+		"sd:/SRB2.WAD",
+		"sd:/SRB2.SRB",
+		"sd:/roms/nds/SRB2.WAD",
+		"sd:/roms/nds/SRB2.SRB",
+		// "fat:/" paths disabled to prevent DSi hardware hangs
+		/*
 		"fat:/srb2/srb2.wad",
 		"fat:/srb2/zones.wad",
 		"fat:/srb2/player.dta",
@@ -72,13 +81,14 @@ void D_SRB2Main_DSi(void)
 		"fat:/SRB2.SRB",
 		"fat:/roms/nds/SRB2.WAD",
 		"fat:/roms/nds/SRB2.SRB",
+		*/
 		"SRB2.WAD",
 		"SRB2.SRB"
 	};
 	char *wads[2] = { NULL, NULL };
 
 	printf("Searching for SRB2.WAD...\n");
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 9; i++) { // Adjusted loop count for removed paths
 		if (FIL_ReadFileOK(wad_paths[i])) {
 			wads[0] = (char*)wad_paths[i];
 			printf("Found: %s\n", wad_paths[i]);

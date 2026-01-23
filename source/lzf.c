@@ -119,6 +119,14 @@
 /*****************************************************************************/
 /* nothing should be changed below */
 
+/* Define u8 type if not already defined */
+#ifndef u8
+typedef unsigned char u8;
+#endif
+
+/* Note: u32 is typically defined by system headers (e.g., devkitPro's calico.h)
+   so we don't redefine it here */
+
 typedef const u8 *LZF_STATE[1 << (HLOG)];
 
 #if !STRICT_ALIGN

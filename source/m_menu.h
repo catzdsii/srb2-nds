@@ -15,6 +15,7 @@
 #ifndef __X_MENU__
 #define __X_MENU__
 
+#include "doomtype.h"
 #include "d_event.h"
 #include "command.h"
 #include "r_things.h" // for SKINNAMESIZE

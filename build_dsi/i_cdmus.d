@@ -119,6 +119,11 @@ i_cdmus.o: C:/Users/tiwin/Downloads/srb2_3ds-master/source/dsi/i_cdmus.c \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_sound.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomdef.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/sounds.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/command.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/s_sound.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_sound.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_fixed.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/tables.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/command.h
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomdef.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomtype.h:
@@ -241,4 +246,9 @@ C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_swap.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_sound.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomdef.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/sounds.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/command.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/s_sound.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_sound.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_fixed.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/tables.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/command.h:

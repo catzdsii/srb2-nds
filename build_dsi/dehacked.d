@@ -134,6 +134,8 @@ dehacked.o: C:/Users/tiwin/Downloads/srb2_3ds-master/source/dehacked.c \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_clisrv.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_netcmd.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/command.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/s_sound.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_sound.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_argv.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/z_zone.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_menu.h \
@@ -150,8 +152,6 @@ dehacked.o: C:/Users/tiwin/Downloads/srb2_3ds-master/source/dehacked.c \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/dehacked.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/st_stuff.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_system.h \
- C:/Users/tiwin/Downloads/srb2_3ds-master/source/s_sound.h \
- C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_sound.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/p_local.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_bbox.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/p_tick.h \
@@ -306,6 +306,8 @@ C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_ticcmd.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_clisrv.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_netcmd.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/command.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/s_sound.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_sound.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_argv.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/z_zone.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_menu.h:
@@ -322,8 +324,6 @@ C:/Users/tiwin/Downloads/srb2_3ds-master/source/f_finale.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/dehacked.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/st_stuff.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_system.h:
-C:/Users/tiwin/Downloads/srb2_3ds-master/source/s_sound.h:
-C:/Users/tiwin/Downloads/srb2_3ds-master/source/i_sound.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/p_local.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_bbox.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/p_tick.h:

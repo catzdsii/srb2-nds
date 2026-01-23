@@ -14,6 +14,7 @@
 #include "d_main.h" // for srb2home
 #include "g_game.h"
 #include "sounds.h"
+#include "s_sound.h"
 #include "info.h"
 #include "d_think.h"
 #include "m_argv.h"
@@ -3779,7 +3780,9 @@ void DEH_LoadDehackedLumpPwad(UINT16 wad, UINT16 lump)
 	f.data[f.size] = 0;
 	DEH_LoadDehackedFile(&f, wad);
 	DEH_WriteUndoline(va("# uload for wad: %u, lump: %u", wad, lump), NULL, UNDO_DONE);
-	Z_Free(f.data);
+	CONS_Printf("Freeing DEH data...\n");
+	//Z_Free(f.data);
+	CONS_Printf("DEH data freed (skipped).\n");
 }
 
 void DEH_LoadDehackedLump(lumpnum_t lumpnum)

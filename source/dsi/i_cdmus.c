@@ -13,6 +13,12 @@
 
 #include "../doomdef.h"
 #include "../i_sound.h"
+#include "../s_sound.h"
+#include "../command.h"
+
+// CD music not supported on DSi - stub implementation
+//consvar_t cd_volume = {"cd_volume","31",CV_SAVE,soundvolume_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+//consvar_t cdUpdate  = {"cd_update","1",CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 // CD music not supported on DSi
 void I_CDMusInit(void) {}

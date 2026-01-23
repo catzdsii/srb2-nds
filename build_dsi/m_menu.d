@@ -1,6 +1,5 @@
 m_menu.o: C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_menu.c \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_menu.h \
- C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_event.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomtype.h \
  C:/devkitPro/libnds/include/nds.h C:/devkitPro/calico/include/calico.h \
  C:/devkitPro/calico/include/calico/types.h \
@@ -115,6 +114,7 @@ m_menu.o: C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_menu.c \
  C:/devkitPro/libnds/include/nds/arm9/video.h \
  C:/devkitPro/libnds/include/nds/arm9/videoGL.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/endian.h \
+ C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_event.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/g_state.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/command.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomdef.h \
@@ -176,7 +176,6 @@ m_menu.o: C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_menu.c \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_cond.h \
  C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_random.h
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/m_menu.h:
-C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_event.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomtype.h:
 C:/devkitPro/libnds/include/nds.h:
 C:/devkitPro/calico/include/calico.h:
@@ -292,6 +291,7 @@ C:/devkitPro/libnds/include/nds/arm9/trig_lut.h:
 C:/devkitPro/libnds/include/nds/arm9/video.h:
 C:/devkitPro/libnds/include/nds/arm9/videoGL.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/endian.h:
+C:/Users/tiwin/Downloads/srb2_3ds-master/source/d_event.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/g_state.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/command.h:
 C:/Users/tiwin/Downloads/srb2_3ds-master/source/doomdef.h:

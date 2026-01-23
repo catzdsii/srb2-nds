@@ -14,6 +14,7 @@
 #ifndef __M_CHEAT__
 #define __M_CHEAT__
 
+#include "doomtype.h"
 #include "d_event.h"
 #include "d_player.h"
 #include "p_mobj.h"

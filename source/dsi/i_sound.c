@@ -29,8 +29,21 @@ static int current_mod_id = -1;
 void I_StartupSound(void)
 {
 	// Initialize maxmod
-	// We try to load a soundbank from the SD card
-	mmInitDefault("fat:/srb2/soundbank.bin");
+	// We try to load a soundbank from the SD card (DSi Internal SD first)
+	FILE *f_check = fopen("sd:/srb2/soundbank.bin", "rb");
+	if (f_check)
+	{
+		fclose(f_check);
+		mmInitDefault("sd:/srb2/soundbank.bin");
+		CONS_Printf("Initialized soundbank from sd:/srb2/soundbank.bin\n");
+	}
+	else
+	{
+		// Fallback to fat:/ REMOVED
+		// Warning: This may hang on DSi if Slot-1 is inaccessible
+		// mmInitDefault("fat:/srb2/soundbank.bin");
+		CONS_Printf("Soundbank not found on SD. Sound disabled.\n");
+	}
 	
 	// Set sound volume
 	mmSetModuleVolume(512);
