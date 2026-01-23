@@ -95,17 +95,34 @@ int main(int argc, char **argv)
 	CONS_Printf("I_StartupSystem...");
 	I_StartupSystem();
 
-	// Inject WAD paths for DSi - Custom ARGV needed because DSi has no host OS command-line support
-	// Original DSi hardware doesn't pass arguments to homebrew, so we define required paths explicitly
-	static char *dsi_argv[] = {
-		"srb2_dsi",
-		"-file", 
-		"sd:/srb2/srb2.srb",
-		"sd:/srb2/zones.wad", 
-		NULL
-	};
-	myargc = 4;
-	myargv = dsi_argv;
+	// Check if arguments were passed via DSi Homebrew Launcher (ARGV protocol)
+	// Modern launchers like TWiLight Menu++ support passing arguments via ARGV
+	if (argc > 1)
+	{
+		CONS_Printf("Received %d arguments from launcher:\n", argc);
+		int i;
+		for (i = 0; i < argc; i++)
+		{
+			CONS_Printf("%s\n", argv[i]);
+		}
+		myargc = argc;
+		myargv = argv;
+	}
+	else
+	{
+		// Fallback for direct launch or launchers without ARGV support
+		// We define required paths explicitly to ensure WADs are found on SD card
+		CONS_Printf("No arguments received, using default DSi paths\n");
+		static char *dsi_argv[] = {
+			"srb2_dsi",
+			"-file", 
+			"sd:/srb2/srb2.srb",
+			"sd:/srb2/zones.wad", 
+			NULL
+		};
+		myargc = 4;
+		myargv = dsi_argv;
+	}
 
 	// startup SRB2
 	CONS_Printf("Setting up SRB2...\n");
