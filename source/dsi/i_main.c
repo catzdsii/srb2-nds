@@ -95,12 +95,16 @@ int main(int argc, char **argv)
 	CONS_Printf("I_StartupSystem...");
 	I_StartupSystem();
 
-	// Inject WAD paths for DSi
+	// Inject WAD paths for DSi - Custom ARGV needed because DSi has no host OS command-line support
+	// Original DSi hardware doesn't pass arguments to homebrew, so we define required paths explicitly
 	static char *dsi_argv[] = {
-	"srb2_dsi",
-	NULL
-};
-	myargc = 1;
+		"srb2_dsi",
+		"-file", 
+		"sd:/srb2/srb2.srb",
+		"sd:/srb2/zones.wad", 
+		NULL
+	};
+	myargc = 4;
 	myargv = dsi_argv;
 
 	// startup SRB2
