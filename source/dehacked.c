@@ -1011,14 +1011,41 @@ static void readlevelheader(MYFILE *f, INT32 num)
 	//char *word3; // Non-uppercase version of word2
 	char *tmp;
 	INT32 i;
+	INT32 loopcount = 0;
+
+	if (num == 12)
+	{
+		CONS_Printf("SKIPPING LEVEL 12 HEADER TO PREVENT HANG\n");
+		// Just consume the block to be safe
+		do
+		{
+			if (myfgets(s, 1024, f))
+			{
+				if (s[0] == '\n' || s[0] == '\r')
+					break;
+			}
+			else
+				break;
+		} while (!myfeof(f));
+		return;
+	}
 
 	// Reset all previous map header information
 	// This call automatically saves all previous information when DELFILE is defined.
 	// We don't need to do it ourselves.
+	
+	CONS_Printf("RMC: Allocating map header for level %d\n", num);
 	P_AllocMapHeader((INT16)(num-1));
+	CONS_Printf("RMC: Map header allocated\n");
 
 	do
 	{
+		if (++loopcount > 10000)
+		{
+			CONS_Printf("RMC: Infinite loop detected in readlevelheader %d (10000 lines), forcing break\n", num);
+			break;
+		}
+
 		if (myfgets(s, 1024, f))
 		{
 			//CONS_Printf("RMC: %s", s);
